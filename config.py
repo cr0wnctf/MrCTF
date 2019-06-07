@@ -9,8 +9,10 @@ BACKEND = 'Text'  # Errbot will start in text mode (console only mode) and will 
 
 BOT_DATA_DIR = r'./data'
 BOT_EXTRA_PLUGIN_DIR = r'./plugins'
+BOT_EXTRA_BACKEND_DIR = r'./backends'
 
 BOT_LOG_FILE = r'./errbot.log'
 BOT_LOG_LEVEL = logging.DEBUG
+AUTOINSTALL_DEPS = False
 
 BOT_ADMINS = ('@CHANGE_ME', )  # !! Don't leave that to "@CHANGE_ME" if you connect your errbot to a chat system !!
