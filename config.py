@@ -16,7 +16,16 @@ BOT_LOG_FILE = r'./errbot.log'
 BOT_LOG_LEVEL = logging.DEBUG
 AUTOINSTALL_DEPS = False
 
-BOT_ADMINS = ('@CHANGE_ME', )  # !! Don't leave that to "@CHANGE_ME" if you connect your errbot to a chat system !!
+ADMINS = None
+try:
+    ADMINS = os.environ["ADMINS"]
+except KeyError as e:
+    pass  # No admins
+
+if ADMINS is not None:
+    BOT_ADMINS = ADMINS.split(",")
+else:
+    BOT_ADMINS = ()
 
 try:
     TOKEN = os.environ["DISCORD_TOKEN"]
