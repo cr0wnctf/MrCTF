@@ -1,0 +1,9 @@
+[Core]
+Name = Ctf
+Module = ctf
+
+[Documentation]
+Description = Plugin to manage teams during CTF competitions
+
+[Python]
+Version = 3
