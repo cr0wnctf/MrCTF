@@ -3,13 +3,16 @@ import re
 from errbot import BotPlugin, botcmd, re_botcmd, Message
 from errbot.backends.base import Room
 
+
 CTF_KEY = "CTFS"
 
 
 class CTF:
-    def __init__(self, name: str):
+    def __init__(self, name: str, category: Room, general_room: Room):
         self.name = name
         self.challenges = []
+        self.general_room = general_room
+        self.category = category
 
 
 class CTF_Plugin(BotPlugin):
@@ -24,24 +27,33 @@ class CTF_Plugin(BotPlugin):
         if CTF_KEY not in self:
             self[CTF_KEY] = []
 
-    @botcmd  # flags a command
-    def ctf_status(self, msg, args):  # a command callable with !tryme
+    @botcmd
+    def ctf_status(self, msg, args):
         """
         Gets the status of all active CTF's the team is competing in
         """
-        return 'It *works* !'  # This string format is markdown.
+        for ctf in self[CTF_KEY]:
+            pass
+
+        return 'It *works* ! <#585874178989752321>'
 
     @botcmd
-    def ctf_add(self, msg, ctf_name):
+    def addctf(self, msg, ctf_name):
         """Adds an CTF to play in
         usage: !ctf add <ctf_name>
         """
         if not ctf_name:
             return "usage: !ctf add <ctf_name>"
 
-        room = self.query_room(ctf_name)
-        room.create()
-        self[CTF_KEY] = CTF(ctf_name)
+        category = self.query_room("##" + ctf_name)
+        category.create()
+
+        try:
+            general_room = category.create_subchannel(ctf_name + "-general")
+        except AttributeError as e:
+            raise RuntimeError(e, "We need an object that supports creating sub-channels")
+
+        self[CTF_KEY].append(CTF(ctf_name, category, general_room))
 
     @re_botcmd(pattern=r"(^| )rarf( |$)", prefixed=False, flags=re.IGNORECASE)
     def rarf2reef(self, msg: Message, match):
