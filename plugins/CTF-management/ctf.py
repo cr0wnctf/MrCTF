@@ -168,11 +168,13 @@ class CTF_Plugin(BotPlugin):
                         if challenge.solved:
                             return "Challenge already solved!"
 
-                        solvers = [msg.frm.person]
+                        solvers = [str(msg.frm.username)]
                         solvers.extend(args)
                         challenge.solve(solvers)
 
                         self.send(ctf.general_room, "@everyone {} had been solved!".format(challenge.room))
+                        break
+                return "Not in a challenge room!"
 
         self._store.shelf.dict._commit()
 
