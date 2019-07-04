@@ -3,6 +3,7 @@ from typing import Tuple
 
 from errbot import BotPlugin, botcmd, re_botcmd, Message
 from errbot.backends.base import Room, RoomOccupant
+import ctftime
 
 CTF_KEY = "CTFS"
 
@@ -112,7 +113,7 @@ class CTF_Plugin(BotPlugin):
             return "Need to workon a challenge from a room"
 
         from_room = msg.frm.room
-        challenge_name = args[0]
+        challenge_name = args[0].lower()
         with self.mutable(CTF_KEY) as d:
             for ctf in d:
                 if ctf.general_room == from_room:
@@ -121,6 +122,7 @@ class CTF_Plugin(BotPlugin):
                     else:
                         challenge = ctf.challenges[challenge_name]
                         challenge.workers.append(msg.frm)
+
         self._store.shelf.dict._commit()
 
     @botcmd
@@ -172,8 +174,13 @@ class CTF_Plugin(BotPlugin):
                         solvers.extend(args)
                         challenge.solve(solvers)
 
-                        self.send(ctf.general_room, "@everyone {} had been solved!".format(challenge.room))
-                        break
+                        self.send(ctf.general_room, "@everyone {} had been solved by {}!".format(
+                            challenge.room,
+                            ", ".join(challenge.solvers)
+                        ))
+
+                        return "Challenge solved!"
+
                 return "Not in a challenge room!"
 
         self._store.shelf.dict._commit()
@@ -208,14 +215,38 @@ class CTF_Plugin(BotPlugin):
         with self.mutable(CTF_KEY) as d:
             for ctf in d:
                 if ctf.general_room == from_room:
-                    challenge_room = ctf.addchallenge(args[0], args[1])
+                    challenge_room = ctf.addchallenge(args[0].lower(), args[1].lower())
                     return "challenge added in room {}".format(challenge_room)
 
         self._store.shelf.dict._commit()
 
         return "Need to be in an active CTF room to add a challenge!"
 
+    @botcmd(split_args_with=None)
+    def upcoming(self, msg, args):
+        """
+        !upcoming <num_days: 7>
+
+        Gets the upcoming ctfs in a period
+        """
+        try:
+            days = int(args[0])
+        except Exception:
+            days = 7
+
+        return ctftime.get_upcoming_ctfs(days)
+
+    @botcmd(split_args_with=None)
+    def score(self, msg, args):
+        """
+        "!score <ctf_score> <place> <best_score> <num_teams> <weight>"
+        Calculates the ctftime score from a ctf
+        """
+        return ctftime.get_score(args)
+
     @re_botcmd(pattern=r"(^| )rarf( |$)", prefixed=False, flags=re.IGNORECASE)
     def rarf2reef(self, msg: Message, match):
         """Replaces a word with a better one"""
-        return msg.body.replace("rarf", "reef")
+
+        return re.sub("rarf", "reef", msg.body, flags=re.I)
+

@@ -7,7 +7,13 @@ verify_ssl = true
 
 [packages]
 errbot = "*"
-discord-py = "*"
+discord-py = "==1.2.3"
+python-dateutil = "*"
+pytz = "*"
+beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
